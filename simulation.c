@@ -6,7 +6,7 @@
 /*   By: ccakir <ccakir@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/29 22:44:25 by ccakir            #+#    #+#             */
-/*   Updated: 2026/04/30 14:44:39 by ccakir           ###   ########.fr       */
+/*   Updated: 2026/04/30 22:43:11 by ccakir           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,14 +32,23 @@ void	take_forks(t_philo *philo)
 	if (philo->id % 2 == 0)
 	{
 		pthread_mutex_lock(&philo->table->forks[left]);
+		if (!is_dead(philo->table))
+			print_action(philo, "has taken a fork.");
 		pthread_mutex_lock(&philo->table->forks[right]);
+		if (!is_dead(philo->table))
+			print_action(philo, "has taken a fork.");
 	}
 	else
 	{
 		pthread_mutex_lock(&philo->table->forks[right]);
+		if (!is_dead(philo->table))
+			print_action(philo, "has taken a fork.");
 		pthread_mutex_lock(&philo->table->forks[left]);
+		if (!is_dead(philo->table))
+			print_action(philo, "has taken a fork.");
 	}
 }
+
 
 void	put_forks(t_philo *philo)
 {
@@ -57,6 +66,8 @@ static void	*philo_routine(void *arg)
 	t_philo	*philo;
 
 	philo = (t_philo *)arg;
+	if (philo->id % 2 == 0)
+		ft_usleep(philo->table->time_to_eat / 2);
 	while (1)
 	{
 		if (is_dead(philo->table))
@@ -65,12 +76,12 @@ static void	*philo_routine(void *arg)
 			eat(philo);
 		if (!is_dead(philo->table))
 		{
-			print_action(philo, "sleeping");
+			print_action(philo, "is sleeping");
 			ft_usleep(philo->table->time_to_sleep);
 		}
 		if (!is_dead(philo->table))
 		{
-			print_action(philo, "thinking");
+			print_action(philo, "is thinking");
 			ft_usleep(1);
 		}
 	}
@@ -84,8 +95,9 @@ int	start_simulation(t_table *table)
 
 	if (table->philo_count == 1)
 	{
+		print_action(&table->philos[0], "has taken a fork");
 		ft_usleep(table->time_to_die);
-		printf("%ld 1 died\n", get_time());
+		print_action(&table->philos[0], "died");
 		return (0);
 	}
 	pthread_create(&monitor_thread, NULL, monitor, table);
@@ -96,12 +108,9 @@ int	start_simulation(t_table *table)
 	while (++i < table->philo_count)
 		pthread_create(&table->threads[i], NULL,
 			philo_routine, &table->philos[i]);
-	i = 0;
-	while (i < table->philo_count)
-	{
+	i = -1;
+	while (++i < table->philo_count)
 		pthread_join(table->threads[i], NULL);
-		i++;
-	}
 	pthread_join(monitor_thread, NULL);
 	return (0);
 }

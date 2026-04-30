@@ -6,7 +6,7 @@
 /*   By: ccakir <ccakir@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/30 00:51:38 by ccakir            #+#    #+#             */
-/*   Updated: 2026/04/30 14:42:43 by ccakir           ###   ########.fr       */
+/*   Updated: 2026/04/30 16:54:51 by ccakir           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,6 +24,8 @@ void	check_done(t_table *table)
 	int	i;
 
 	i = 0;
+	if (table->must_eat == -1)
+		return ;
 	while (i < table->philo_count)
 	{
 		pthread_mutex_lock(&table->philos[i].philo_mutex);
@@ -53,7 +55,7 @@ void	*monitor(void *arg)
 			pthread_mutex_lock(&table->philos[i].philo_mutex);
 			last_eat = table->philos[i].last_eat_time;
 			pthread_mutex_unlock(&table->philos[i].philo_mutex);
-			if (get_time() - last_eat >= table->time_to_die)
+			if (get_time() - last_eat > table->time_to_die)
 			{
 				make_is_someone_dead_one(table);
 				print_action(&table->philos[i], "died");
@@ -64,5 +66,6 @@ void	*monitor(void *arg)
 		check_done(table);
 		if (is_dead(table))
 			return (NULL);
+		usleep(500);
 	}
 }

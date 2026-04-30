@@ -6,7 +6,7 @@
 /*   By: ccakir <ccakir@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/29 23:14:27 by ccakir            #+#    #+#             */
-/*   Updated: 2026/04/30 14:44:00 by ccakir           ###   ########.fr       */
+/*   Updated: 2026/04/30 22:49:46 by ccakir           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,7 +40,7 @@ void	ft_usleep(long ms)
 void	print_action(t_philo *philo, char *action)
 {
 	pthread_mutex_lock(&philo->table->print_mutex);
-	printf("%ld %d %s\n", get_time(), philo->id, action);
+	printf("%ld %d %s\n", get_time() - philo->table->start_time, philo->id, action);
 	pthread_mutex_unlock(&philo->table->print_mutex);
 }
 
@@ -56,7 +56,7 @@ void	eat(t_philo *philo)
 	philo->last_eat_time = get_time();
 	philo->eat_count++;
 	pthread_mutex_unlock(&philo->philo_mutex);
-	print_action(philo, "eating");
+	print_action(philo, "is eating");
 	ft_usleep(philo->table->time_to_eat);
 	put_forks(philo);
 }
